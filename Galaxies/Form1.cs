@@ -22,7 +22,7 @@ namespace Galaxies
         }
         private void Form1_Load(object sender, EventArgs e)
         {
-            //Star count, total mass, locX, locY, has a core, are stars moving off start
+            //Star count, total mass, locX, locY, has a core, are stars moving off start//
             Galaxy g = new Galaxy(10, 1000, 200, 200, true, false); //200
             Galaxy g2 = new Galaxy(1, 400, 500, 400, false, false);
             galaxies.Add(g);
