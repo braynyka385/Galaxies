@@ -26,10 +26,12 @@ namespace Galaxies
         private void Form1_Load(object sender, EventArgs e)
         {
             //Star count, total mass, locX, locY, has a core, are stars moving off start//
-            Galaxy g = new Galaxy(100, 750, 200, 200, false, false); //200
-            Galaxy g2 = new Galaxy(150, 1000, 500, 400, false, false);
+            Galaxy g = new Galaxy(100, 100, 200, 200, false, false); //200
+            Galaxy g2 = new Galaxy(100, 100, 300, 400, false, false);
+            Galaxy g3 = new Galaxy(100, 100, 400, 500, false, false);
             galaxies.Add(g);
             galaxies.Add(g2);
+            galaxies.Add(g3);
         }
         private void gameTimer_Tick(object sender, EventArgs e)
         {
@@ -44,21 +46,22 @@ namespace Galaxies
         }
         public void KeyPresses()
         {
+            int moveSensitivity = 5;
             if (pressedKeys[0])
             {
-                camY++;
+                camY += moveSensitivity;
             }
             if (pressedKeys[1])
             {
-                camY--;
+                camY -= moveSensitivity;
             }
             if (pressedKeys[2])
             {
-                camX++;
+                camX += moveSensitivity;
             }
             if (pressedKeys[3])
             {
-                camX--;
+                camX -= moveSensitivity;
             }
         }
         public void InternalGalaxyMechanisms()
@@ -189,87 +192,91 @@ namespace Galaxies
 
         public void ExternalGalaxyMechanisms()
         {
-            for (int g = 0; g < galaxies.Count - g; g++)
+            for (int g = 0; g < galaxies.Count - 1; g++)
             {
-                for (int i = 0; i < galaxies[g].stars.Count; i++)
+                for (int x = 1; x < galaxies.Count - g; x++)
                 {
-                    galaxies[g].stars[i].force[0] = 0;
-                    galaxies[g].stars[i].force[1] = 0;
-
-                    galaxies[g].stars[i].accel[0] = 0;
-                    galaxies[g].stars[i].accel[1] = 0;
-                    for (int j = 0; j < galaxies[g + 1].stars.Count; j++)
+                    for (int i = 0; i < galaxies[g].stars.Count; i++)
                     {
-                        galaxies[g + 1].stars[j].force[0] = 0;
-                        galaxies[g + 1].stars[j].force[1] = 0;
+                        galaxies[g].stars[i].force[0] = 0;
+                        galaxies[g].stars[i].force[1] = 0;
 
-                        galaxies[g + 1].stars[j].accel[0] = 0;
-                        galaxies[g + 1].stars[j].accel[1] = 0;
+                        galaxies[g].stars[i].accel[0] = 0;
+                        galaxies[g].stars[i].accel[1] = 0;
+                        for (int j = 0; j < galaxies[g + x].stars.Count; j++)
+                        {
+                            galaxies[g + x].stars[j].force[0] = 0;
+                            galaxies[g + x].stars[j].force[1] = 0;
 
-                        double xDist = galaxies[g].stars[i].x - galaxies[g + 1].stars[j].x;
-                        double yDist = galaxies[g].stars[i].y - galaxies[g + 1].stars[j].y;
-                        double dist = Math.Sqrt(Math.Pow(xDist, 2) + Math.Pow(yDist, 2));
-                        if (dist == 0)
-                        {
-                            dist = Math.Sqrt(Math.Pow(xDist, 2) + 1 + Math.Pow(yDist, 2) + 1);
-                        }
-                        double xForce;
-                        if (dist == 0)
-                        {
-                            xForce = (G * galaxies[g].stars[i].mass * galaxies[g + 1].stars[j].mass) / dist + 1;
-                        }
-                        else
-                        {
-                            xForce = (G * galaxies[g].stars[i].mass * galaxies[g + 1].stars[j].mass) / dist;
-                        }
-                        double yForce;
+                            galaxies[g + x].stars[j].accel[0] = 0;
+                            galaxies[g + x].stars[j].accel[1] = 0;
 
-                        if (dist == 0)
-                        {
-                            yForce = (G * galaxies[g].stars[i].mass * galaxies[g + 1].stars[j].mass) / dist + 1;
-                        }
-                        else
-                        {
-                            yForce = (G * galaxies[g].stars[i].mass * galaxies[g + 1].stars[j].mass) / dist;
-                        }
+                            double xDist = galaxies[g].stars[i].x - galaxies[g + x].stars[j].x;
+                            double yDist = galaxies[g].stars[i].y - galaxies[g + x].stars[j].y;
+                            double dist = Math.Sqrt(Math.Pow(xDist, 2) + Math.Pow(yDist, 2));
+                            if (dist == 0)
+                            {
+                                dist = Math.Sqrt(Math.Pow(xDist, 2) + 1 + Math.Pow(yDist, 2) + 1);
+                            }
+                            double xForce;
+                            if (dist == 0)
+                            {
+                                xForce = (G * galaxies[g].stars[i].mass * galaxies[g + x].stars[j].mass) / dist + 1;
+                            }
+                            else
+                            {
+                                xForce = (G * galaxies[g].stars[i].mass * galaxies[g + x].stars[j].mass) / dist;
+                            }
+                            double yForce;
 
-                        double dirX = Math.Abs(galaxies[g + 1].stars[j].x - galaxies[g].stars[i].x);
-                        double dirY = Math.Abs(galaxies[g + 1].stars[j].y - galaxies[g].stars[i].y);
+                            if (dist == 0)
+                            {
+                                yForce = (G * galaxies[g].stars[i].mass * galaxies[g + x].stars[j].mass) / dist + 1;
+                            }
+                            else
+                            {
+                                yForce = (G * galaxies[g].stars[i].mass * galaxies[g + x].stars[j].mass) / dist;
+                            }
 
-                        double percentX = dirX / (dirX + dirY) * 1;
-                        double percentY = 1 - percentX;
-                        if (dirX == 0)
-                        {
-                            percentX = 0;
-                            percentY = 1;
-                        }
-                        else if (dirY == 0)
-                        {
-                            percentX = 1;
-                            percentY = 0;
-                        }
-                        if (galaxies[g + 1].stars[j].x - galaxies[g].stars[i].x < 0)
-                        {
-                            percentX = -percentX;
-                        }
-                        if (galaxies[g + 1].stars[j].y - galaxies[g].stars[i].y < 0)
-                        {
-                            percentY = -percentY;
-                        }
-                        galaxies[g].stars[i].force[0] += xForce * percentX;
-                        galaxies[g].stars[i].force[1] += yForce * percentY;
+                            double dirX = Math.Abs(galaxies[g + x].stars[j].x - galaxies[g].stars[i].x);
+                            double dirY = Math.Abs(galaxies[g + x].stars[j].y - galaxies[g].stars[i].y);
 
-                        galaxies[g + 1].stars[j].force[0] -= xForce * percentX;
-                        galaxies[g + 1].stars[j].force[1] -= yForce * percentY;
+                            double percentX = dirX / (dirX + dirY) * 1;
+                            double percentY = 1 - percentX;
+                            if (dirX == 0)
+                            {
+                                percentX = 0;
+                                percentY = 1;
+                            }
+                            else if (dirY == 0)
+                            {
+                                percentX = 1;
+                                percentY = 0;
+                            }
+                            if (galaxies[g + x].stars[j].x - galaxies[g].stars[i].x < 0)
+                            {
+                                percentX = -percentX;
+                            }
+                            if (galaxies[g + x].stars[j].y - galaxies[g].stars[i].y < 0)
+                            {
+                                percentY = -percentY;
+                            }
+                            galaxies[g].stars[i].force[0] += xForce * percentX;
+                            galaxies[g].stars[i].force[1] += yForce * percentY;
+
+                            galaxies[g + x].stars[j].force[0] += xForce * -percentX;
+                            galaxies[g + x].stars[j].force[1] += yForce * -percentY;
 
 
 
-                        if (galaxies[g].stars[i].force[0] != galaxies[g].stars[i].force[0])
-                        {
-                            int xad = 0; //Debugging for NaN
+                            if (galaxies[g].stars[i].force[0] != galaxies[g].stars[i].force[0])
+                            {
+                                int xad = 0; //Debugging for NaN
+                            }
                         }
                     }
                 }
+                
             }
 
             ForceToAccel();
@@ -441,7 +448,7 @@ namespace Galaxies
             {
                 avgLoc[0] /= stars.Count();
                 avgLoc[1] /= stars.Count();
-                Star core = new Star(starMass * count * 2, Convert.ToInt32(avgLoc[0]), Convert.ToInt32(avgLoc[1]), this, true);
+                Star core = new Star((int)(starMass * count * 0.25), Convert.ToInt32(avgLoc[0]), Convert.ToInt32(avgLoc[1]), this, true);
                 stars.Add(core); // Uncomment for galactic core
             }
             
@@ -512,10 +519,11 @@ namespace Galaxies
 
         public Star(int mass, int X, int Y, Galaxy g, bool isCore)
         {
+            this.isCore = isCore;
             this.x = X;
             this.y = Y;
             this.mass = mass;
-            if (x > 400)
+            /*if (x > 400)
             {
                 mass *= Convert.ToInt32(400 / x);
             }
@@ -531,7 +539,7 @@ namespace Galaxies
             else
             {
                 mass *= Convert.ToInt32(y / 225);
-            }
+            }*/
             if (!isCore && g.speedToggle)
             {
                 if (this.x > g.loc[0])
