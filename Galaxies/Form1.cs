@@ -12,9 +12,11 @@ namespace Galaxies
 {
     public partial class Form1 : Form
     {
+        float camScale = 2f;
         bool[] pressedKeys = new bool[4];
-        int camX = 0;
-        int camY = 0;
+        int camX = -1000;
+        int camY = -1000;
+        int initOffs = 1000;
         double G = 0.01; //0.0000000000667
         List<Galaxy> galaxies = new List<Galaxy>();   
         Pen starPen = new Pen(Color.White, 1);
@@ -25,13 +27,13 @@ namespace Galaxies
         }
         private void Form1_Load(object sender, EventArgs e)
         {
-            //Star count, total mass, locX, locY, has a core, are stars moving off start//
-            Galaxy g = new Galaxy(100, 100, 200, 200, false, false); //200
-            Galaxy g2 = new Galaxy(100, 100, 300, 400, false, false);
-            Galaxy g3 = new Galaxy(100, 100, 400, 500, false, false);
+            //Star count, total mass, locX, locY, has a core, are stars moving off start, the min (0 - 0.99; use higher for further distance from 0, 0), the density of the stars//
+
+
+            Galaxy g = new Galaxy(400, 1600, 1500 + initOffs, 1500 + initOffs, false, true, 0.60f, 4f); //200
+            //Galaxy g2 = new Galaxy(100, 100, 2500 + initOffs, 1500 + initOffs, false, false, 0.85f, 1f);
             galaxies.Add(g);
-            galaxies.Add(g2);
-            galaxies.Add(g3);
+            //galaxies.Add(g2);
         }
         private void gameTimer_Tick(object sender, EventArgs e)
         {
@@ -341,24 +343,13 @@ namespace Galaxies
                 {
                     if (!s.isCore)
                     {
-                        e.Graphics.DrawEllipse(starPen, Convert.ToInt64(s.x) + camX, Convert.ToInt64(s.y) + camY, 1, 1);
+                        e.Graphics.DrawEllipse(starPen, (Convert.ToInt64(s.x) + camX) / camScale, (Convert.ToInt64(s.y) + camY) / camScale, 1, 1);
                     }
                     else
                     {
                         e.Graphics.DrawEllipse(redPen, Convert.ToInt32(s.x) + camX, Convert.ToInt32(s.y) + camY, 1, 1);
                     }
                 }
-                /*if (g.hasCore)
-                {
-                    for (int i = 0; i < g.stars.Count; i++)
-                    {
-                        if (g.stars[i].isCore)
-                        {
-                            e.Graphics.DrawEllipse(redPen, Convert.ToInt32(g.stars[i].x) + camX, Convert.ToInt32(g.stars[i].y) + camY, 1, 1);
-                        }
-                    }
-                   
-                }*/
 
             }
 
@@ -408,35 +399,38 @@ namespace Galaxies
         public bool speedToggle;
         public bool hasCore;
         public int mass;
+        public int starCount;
         public int[] loc = new int[2];
         public List<Star> stars = new List<Star>();
-        public Galaxy(int bodies, int mass, bool hasCore, bool speedToggle)
+        public Galaxy(int bodies, int mass, bool hasCore, bool speedToggle, float min, float density)
         {
             int starMass = mass / bodies;
             this.loc[0] = 400;
             this.loc[1] = 225;
-            GenerateStars(starMass, bodies, this.loc[0], this.loc[1], hasCore);
+            this.starCount = bodies;
+            GenerateStars(starMass, bodies, this.loc[0], this.loc[1], hasCore, min, density);
             this.hasCore = hasCore;
             this.mass = mass;
             this.speedToggle = speedToggle;
         }
-        public Galaxy(int bodies, int mass, int x, int y, bool hasCore, bool speedToggle)
+        public Galaxy(int bodies, int mass, int x, int y, bool hasCore, bool speedToggle, float min, float density)
         {
             int starMass = mass / bodies;
             this.loc[0] = x;
             this.loc[1] = y;
-            GenerateStars(starMass, bodies, this.loc[0], this.loc[1], hasCore);
+            this.starCount = bodies;
+            GenerateStars(starMass, bodies, this.loc[0], this.loc[1], hasCore, min, density);
             this.hasCore = hasCore;
             this.mass = mass;
             this.speedToggle = speedToggle;
         }
-        public void GenerateStars(int starMass, int count, int galX, int galY, bool hasCore)
+        public void GenerateStars(int starMass, int count, int galX, int galY, bool hasCore, float min, float density)
         {
             Random r = new Random();
             double[] avgLoc = new double[2];
             for (int i = 0; i < count; i++)
             {
-                int[] loc = weightedRandLoc(this.loc[0],this.loc[1], r);
+                int[] loc = weightedRandLoc(this.loc[0],this.loc[1], r, min, density);
                 //int x = weightedRandLoc(this.loc[0], r);
                 //int y = weightedRandLoc(this.loc[1], r);
                 Star s = new Star(starMass, loc[0], loc[1], this, false);
@@ -454,20 +448,20 @@ namespace Galaxies
             
         }
 
-        public int[] weightedRandLoc(int i, int j, Random random)
+        public int[] weightedRandLoc(int i, int j, Random random, float min, float density)
         {
-            double min = 0;
+            //double min = 0;
             double max = 2 - min;
             //random.NextDouble() * (maximum - minimum) + minimum;, thanks StackOverflow
             int[] nums =
             {
-                weightedRandNum(i, random, min, 0), weightedRandNum(j, random, min, 0)
+                weightedRandNum(i, random, min, 0, density), weightedRandNum(j, random, min, 0, density)
             };
             int[] output = new int[2];
             while (Math.Sqrt(Math.Pow(Math.Abs(nums[0]), 2) + Math.Pow(Math.Abs(nums[1]), 2)) <= max)
             {
-                nums[0] = weightedRandNum(i, random, min, 0);
-                nums[1] = weightedRandNum(j, random, min, nums[0]);
+                nums[0] = weightedRandNum(i, random, min, 0, density);
+                nums[1] = weightedRandNum(j, random, min, nums[0], density);
                 
             }
             output[0] = Convert.ToInt32(nums[0]);
@@ -475,8 +469,10 @@ namespace Galaxies
             return output;
         }
 
-        public int weightedRandNum(int i, Random random, double min, double x)
+        public int weightedRandNum(int i, Random random, double min, double x, float density)
         {
+            int z = i;
+            i = random.Next((int)(-this.starCount / density), (int)(this.starCount / density));
             //random.NextDouble() * (maximum - minimum) + minimum;, thanks StackOverflow
             //double min = 0.5;
             double max = 2 - min;
@@ -490,17 +486,17 @@ namespace Galaxies
                 if (Math.Sqrt(Math.Pow(Math.Abs(output), 2) + Math.Pow(Math.Abs(x), 2)) >= max)
                 {
                     
-                    return output;
+                    return output + z;
                 }
                 else
                 {
-                    return weightedRandNum(i, random, min, x);
+                    return weightedRandNum(i, random, min, x, density);
                 }
                 
             }
             else
             {
-                return weightedRandNum(i, random, min, x);
+                return weightedRandNum(i, random, min, x, density);
             }
         }
 
