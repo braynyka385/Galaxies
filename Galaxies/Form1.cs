@@ -12,6 +12,9 @@ namespace Galaxies
 {
     public partial class Form1 : Form
     {
+        bool[] pressedKeys = new bool[4];
+        int camX = 0;
+        int camY = 0;
         double G = 0.01; //0.0000000000667
         List<Galaxy> galaxies = new List<Galaxy>();   
         Pen starPen = new Pen(Color.White, 1);
@@ -23,13 +26,14 @@ namespace Galaxies
         private void Form1_Load(object sender, EventArgs e)
         {
             //Star count, total mass, locX, locY, has a core, are stars moving off start//
-            Galaxy g = new Galaxy(10, 1000, 200, 200, true, false); //200
-            Galaxy g2 = new Galaxy(1, 400, 500, 400, false, false);
+            Galaxy g = new Galaxy(100, 750, 200, 200, false, false); //200
+            Galaxy g2 = new Galaxy(150, 1000, 500, 400, false, false);
             galaxies.Add(g);
             galaxies.Add(g2);
         }
         private void gameTimer_Tick(object sender, EventArgs e)
         {
+            KeyPresses();
             InternalGalaxyMechanisms();
 
             if(galaxies.Count > 1)
@@ -38,7 +42,25 @@ namespace Galaxies
             }
             Refresh();
         }
-
+        public void KeyPresses()
+        {
+            if (pressedKeys[0])
+            {
+                camY++;
+            }
+            if (pressedKeys[1])
+            {
+                camY--;
+            }
+            if (pressedKeys[2])
+            {
+                camX++;
+            }
+            if (pressedKeys[3])
+            {
+                camX--;
+            }
+        }
         public void InternalGalaxyMechanisms()
         {
             foreach (Galaxy g in galaxies)
@@ -312,19 +334,66 @@ namespace Galaxies
                 {
                     if (!s.isCore)
                     {
-                        e.Graphics.DrawEllipse(starPen, Convert.ToInt64(s.x), Convert.ToInt64(s.y), 1, 1);
+                        e.Graphics.DrawEllipse(starPen, Convert.ToInt64(s.x) + camX, Convert.ToInt64(s.y) + camY, 1, 1);
+                    }
+                    else
+                    {
+                        e.Graphics.DrawEllipse(redPen, Convert.ToInt32(s.x) + camX, Convert.ToInt32(s.y) + camY, 1, 1);
                     }
                 }
-                if (g.hasCore)
+                /*if (g.hasCore)
                 {
-                    e.Graphics.DrawEllipse(redPen, Convert.ToInt32(g.stars[g.stars.Count - 1].x), Convert.ToInt32(g.stars[g.stars.Count - 1].y), 1, 1);
-                }
-                
+                    for (int i = 0; i < g.stars.Count; i++)
+                    {
+                        if (g.stars[i].isCore)
+                        {
+                            e.Graphics.DrawEllipse(redPen, Convert.ToInt32(g.stars[i].x) + camX, Convert.ToInt32(g.stars[i].y) + camY, 1, 1);
+                        }
+                    }
+                   
+                }*/
+
             }
-            
+
         }
 
-        
+        private void Form1_KeyDown(object sender, KeyEventArgs e)
+        {
+            switch (e.KeyCode)
+            {
+                case Keys.W:
+                    pressedKeys[0] = true;
+                    break;
+                case Keys.S:
+                    pressedKeys[1] = true;
+                    break;
+                case Keys.A:
+                    pressedKeys[2] = true;
+                    break;
+                case Keys.D:
+                    pressedKeys[3] = true;
+                    break;
+            }
+        }
+
+        private void Form1_KeyUp(object sender, KeyEventArgs e)
+        {
+            switch (e.KeyCode)
+            {
+                case Keys.W:
+                    pressedKeys[0] = false;
+                    break;
+                case Keys.S:
+                    pressedKeys[1] = false;
+                    break;
+                case Keys.A:
+                    pressedKeys[2] = false;
+                    break;
+                case Keys.D:
+                    pressedKeys[3] = false;
+                    break;
+            }
+        }
     }
 
     public class Galaxy
@@ -339,7 +408,7 @@ namespace Galaxies
             int starMass = mass / bodies;
             this.loc[0] = 400;
             this.loc[1] = 225;
-            GenerateStars(starMass, bodies, this.loc[0], this.loc[1]);
+            GenerateStars(starMass, bodies, this.loc[0], this.loc[1], hasCore);
             this.hasCore = hasCore;
             this.mass = mass;
             this.speedToggle = speedToggle;
@@ -349,12 +418,12 @@ namespace Galaxies
             int starMass = mass / bodies;
             this.loc[0] = x;
             this.loc[1] = y;
-            GenerateStars(starMass, bodies, this.loc[0], this.loc[1]);
+            GenerateStars(starMass, bodies, this.loc[0], this.loc[1], hasCore);
             this.hasCore = hasCore;
             this.mass = mass;
             this.speedToggle = speedToggle;
         }
-        public void GenerateStars(int starMass, int count, int galX, int galY)
+        public void GenerateStars(int starMass, int count, int galX, int galY, bool hasCore)
         {
             Random r = new Random();
             double[] avgLoc = new double[2];
