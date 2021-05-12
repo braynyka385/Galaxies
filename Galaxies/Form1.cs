@@ -27,13 +27,14 @@ namespace Galaxies
         }
         private void Form1_Load(object sender, EventArgs e)
         {
+            this.StartPosition = FormStartPosition.WindowsDefaultLocation;
             //Star count, total mass, locX, locY, has a core, are stars moving off start, the min (0 - 0.99; use higher for further distance from 0, 0), the density of the stars//
 
 
-            Galaxy g = new Galaxy(400, 1600, 1500 + initOffs, 1500 + initOffs, false, true, 0.60f, 4f); //200
-            //Galaxy g2 = new Galaxy(100, 100, 2500 + initOffs, 1500 + initOffs, false, false, 0.85f, 1f);
+            Galaxy g = new Galaxy(300, 1000, 500 + initOffs, 1200 + initOffs, true, false, 0.20f, 2f); //200
+            Galaxy g2 = new Galaxy(100, 100, 2000 + initOffs, 1200 + initOffs, false, false, 0.20f, 3f);
             galaxies.Add(g);
-            //galaxies.Add(g2);
+            galaxies.Add(g2);
         }
         private void gameTimer_Tick(object sender, EventArgs e)
         {
@@ -347,7 +348,7 @@ namespace Galaxies
                     }
                     else
                     {
-                        e.Graphics.DrawEllipse(redPen, Convert.ToInt32(s.x) + camX, Convert.ToInt32(s.y) + camY, 1, 1);
+                        e.Graphics.DrawEllipse(redPen, (Convert.ToInt32(s.x) + camX) / camScale, (Convert.ToInt32(s.y) + camY) / camScale, 1, 1);
                     }
                 }
 
@@ -472,7 +473,7 @@ namespace Galaxies
         public int weightedRandNum(int i, Random random, double min, double x, float density)
         {
             int z = i;
-            i = random.Next((int)(-this.starCount / density), (int)(this.starCount / density));
+            i = random.Next((int)(-this.starCount / density) - 1, (int)(this.starCount / density) + 1);
             //random.NextDouble() * (maximum - minimum) + minimum;, thanks StackOverflow
             //double min = 0.5;
             double max = 2 - min;
@@ -490,13 +491,13 @@ namespace Galaxies
                 }
                 else
                 {
-                    return weightedRandNum(i, random, min, x, density);
+                    return weightedRandNum(z, random, min, x, density);
                 }
                 
             }
             else
             {
-                return weightedRandNum(i, random, min, x, density);
+                return weightedRandNum(z, random, min, x, density);
             }
         }
 
