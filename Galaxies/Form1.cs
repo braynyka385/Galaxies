@@ -33,15 +33,15 @@ namespace Galaxies
             //Star count, total mass, locX, locY, has a core, are stars moving off start, the min (0 - 0.99; use higher for further distance from 0, 0), the density of the stars//
 
 
-            Galaxy g = new Galaxy(800, 800, 500 + initOffs, 1200 + initOffs, false, false, 0.20f, 4f); //200
-            Galaxy g2 = new Galaxy(400, 400, 1000 + initOffs, 1200 + initOffs, false, false, 0.20f, 2f);
-            Galaxy g3 = new Galaxy(200, 200, 1500 + initOffs, 1600 + initOffs, false, false, 0.20f, 2f);
-            Galaxy g4 = new Galaxy(100, 100, 3000 + initOffs, 1400 + initOffs, false, false, 0.20f, 2f);
+            Galaxy g = new Galaxy(400, 400, 500 + initOffs, 1200 + initOffs, false, true, 0.20f, 4f); //200
+            //Galaxy g2 = new Galaxy(200, 200, 1500 + initOffs, 1200 + initOffs, false, true, 0.20f, 3f);
+            //Galaxy g3 = new Galaxy(100, 100, 2250 + initOffs, 1600 + initOffs, false, true, 0.20f, 2f);
+            //Galaxy g4 = new Galaxy(50, 50, 3000 + initOffs, 1400 + initOffs, false, true, 0.20f, 2f);
 
             galaxies.Add(g);
-            galaxies.Add(g2);
-            galaxies.Add(g3);
-            galaxies.Add(g4);
+            //galaxies.Add(g2);
+            //galaxies.Add(g3);
+            //galaxies.Add(g4);
 
         }
         private void gameTimer_Tick(object sender, EventArgs e)
@@ -437,10 +437,11 @@ namespace Galaxies
             this.loc[0] = 400;
             this.loc[1] = 225;
             this.starCount = bodies;
-            GenerateStars(starMass, bodies, this.loc[0], this.loc[1], hasCore, min, density);
             this.hasCore = hasCore;
             this.mass = mass;
             this.speedToggle = speedToggle;
+            GenerateStars(starMass, bodies, this.loc[0], this.loc[1], hasCore, min, density);
+            
         }
         public Galaxy(int bodies, int mass, int x, int y, bool hasCore, bool speedToggle, float min, float density)
         {
@@ -448,10 +449,11 @@ namespace Galaxies
             this.loc[0] = x;
             this.loc[1] = y;
             this.starCount = bodies;
-            GenerateStars(starMass, bodies, this.loc[0], this.loc[1], hasCore, min, density);
             this.hasCore = hasCore;
             this.mass = mass;
             this.speedToggle = speedToggle;
+            GenerateStars(starMass, bodies, this.loc[0], this.loc[1], hasCore, min, density);
+            
         }
         public void GenerateStars(int starMass, int count, int galX, int galY, bool hasCore, float min, float density)
         {
