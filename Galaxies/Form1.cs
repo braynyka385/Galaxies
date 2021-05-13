@@ -15,7 +15,7 @@ namespace Galaxies
     public partial class Form1 : Form
     {
         float camScale = 2f;
-        bool[] pressedKeys = new bool[4];
+        bool[] pressedKeys = new bool[6];
         int camX = -1000;
         int camY = -1000;
         int initOffs = 1000;
@@ -34,13 +34,13 @@ namespace Galaxies
 
 
             Galaxy g = new Galaxy(400, 400, 500 + initOffs, 1200 + initOffs, false, true, 0.20f, 4f); //200
-            //Galaxy g2 = new Galaxy(200, 200, 1500 + initOffs, 1200 + initOffs, false, true, 0.20f, 3f);
-            //Galaxy g3 = new Galaxy(100, 100, 2250 + initOffs, 1600 + initOffs, false, true, 0.20f, 2f);
+            Galaxy g2 = new Galaxy(200, 200, 1500 + initOffs, 1200 + initOffs, false, true, 0.20f, 3f);
+            Galaxy g3 = new Galaxy(100, 100, 2250 + initOffs, 1600 + initOffs, false, true, 0.20f, 2f);
             //Galaxy g4 = new Galaxy(50, 50, 3000 + initOffs, 1400 + initOffs, false, true, 0.20f, 2f);
 
             galaxies.Add(g);
-            //galaxies.Add(g2);
-            //galaxies.Add(g3);
+            galaxies.Add(g2);
+            galaxies.Add(g3);
             //galaxies.Add(g4);
 
         }
@@ -61,19 +61,27 @@ namespace Galaxies
             int moveSensitivity = 5;
             if (pressedKeys[0])
             {
-                camY += moveSensitivity;
+                camY += moveSensitivity * (int)camScale;
             }
             if (pressedKeys[1])
             {
-                camY -= moveSensitivity;
+                camY -= moveSensitivity * (int)camScale;
             }
             if (pressedKeys[2])
             {
-                camX += moveSensitivity;
+                camX += moveSensitivity * (int)camScale;
             }
             if (pressedKeys[3])
             {
-                camX -= moveSensitivity;
+                camX -= moveSensitivity * (int)camScale;
+            }
+            if (pressedKeys[4])
+            {
+                camScale -= 0.1f;
+            }
+            if (pressedKeys[5])
+            {
+                camScale += 0.1f;
             }
         }
         public async Task InternalGalaxyMechanisms()
@@ -400,6 +408,13 @@ namespace Galaxies
                 case Keys.D:
                     pressedKeys[3] = true;
                     break;
+                case Keys.Q:
+                    pressedKeys[4] = true;
+                    break;
+                case Keys.E:
+                    pressedKeys[5] = true;
+                    break;
+
             }
         }
 
@@ -418,6 +433,12 @@ namespace Galaxies
                     break;
                 case Keys.D:
                     pressedKeys[3] = false;
+                    break;
+                case Keys.Q:
+                    pressedKeys[4] = false;
+                    break;
+                case Keys.E:
+                    pressedKeys[5] = false;
                     break;
             }
         }
