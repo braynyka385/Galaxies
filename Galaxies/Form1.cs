@@ -23,6 +23,7 @@ namespace Galaxies
         List<Galaxy> galaxies = new List<Galaxy>();   
         Pen starPen = new Pen(Color.White, 1);
         Pen redPen = new Pen(Color.OrangeRed, 1);
+        Random r = new Random();
         public Form1()
         {
             InitializeComponent();
@@ -32,17 +33,42 @@ namespace Galaxies
             this.StartPosition = FormStartPosition.WindowsDefaultLocation;
             //Star count, total mass, locX, locY, has a core, are stars moving off start, the min (0 - 0.99; use higher for further distance from 0, 0), the density of the stars//
 
+            /*for(int i = 0; i < 12; i++)
+            {
+                int x = r.Next(-5000, 5000);
+                int y = r.Next(-5000, 5000);
+                int m = r.Next(2, 100);
+                Galaxy g1 = new Galaxy(m, m, x + initOffs, y + initOffs, false, true, 0.0f, 5f);
+                galaxies.Add(g1);
 
-            Galaxy g = new Galaxy(400, 400, 500 + initOffs, 1200 + initOffs, false, true, 0.20f, 4f); //200
-            Galaxy g2 = new Galaxy(200, 200, 1500 + initOffs, 1200 + initOffs, false, true, 0.20f, 3f);
-            Galaxy g3 = new Galaxy(100, 100, 2250 + initOffs, 1600 + initOffs, false, true, 0.20f, 2f);
-            //Galaxy g4 = new Galaxy(50, 50, 3000 + initOffs, 1400 + initOffs, false, true, 0.20f, 2f);
+            }*/
+            Galaxy g1 = new Galaxy(600, 600, 500 + initOffs, 1200 + initOffs, false, true, 0.0f, 10f); //200
+            Galaxy g2 = new Galaxy(200, 200, 2500 + initOffs, 1200 + initOffs, false, true, 0.0f, 8f);
+            Galaxy g3 = new Galaxy(100, 100, 1000 + initOffs, 4000 + initOffs, false, true, 0.20f, 5f);
+            //Galaxy g4 = new Galaxy(75, 75, 3000 + initOffs, 1400 + initOffs, false, true, 0.20f, 2f);
 
-            galaxies.Add(g);
+            galaxies.Add(g1);
             galaxies.Add(g2);
             galaxies.Add(g3);
             //galaxies.Add(g4);
 
+            List<Star> stars = new List<Star>();
+            int mass = 0;
+            int starCount = 0;
+            for (int i = galaxies.Count - 1; i >= 0; i--)
+            {
+                mass += galaxies[i].mass;
+                starCount += galaxies[i].starCount;
+                foreach (Star s in galaxies[i].stars)
+                {
+                    stars.Add(s);
+                }
+                galaxies.RemoveAt(i);
+            }
+                
+            
+            Galaxy main = new Galaxy(stars, mass, starCount);
+            galaxies.Add(main);
         }
         private void gameTimer_Tick(object sender, EventArgs e)
         {
@@ -77,11 +103,11 @@ namespace Galaxies
             }
             if (pressedKeys[4])
             {
-                camScale -= 0.1f;
+                camScale -= 0.1f * (camScale / 10);
             }
             if (pressedKeys[5])
             {
-                camScale += 0.1f;
+                camScale += 0.1f * (camScale / 10);
             }
         }
         public async Task InternalGalaxyMechanisms()
@@ -100,8 +126,9 @@ namespace Galaxies
                 {
                     for (int j = i + 1; j < g.stars.Count; j++)
                     {
-                        g.stars[i].interactedMass = g.stars[j].mass;
-                        g.stars[j].interactedMass = g.stars[i].mass;
+
+                        //g.stars[i].interactedMass = g.stars[j].mass;
+                        //g.stars[j].interactedMass = g.stars[i].mass;
                         double xDist = Math.Abs(g.stars[i].x - g.stars[j].x);
                         double yDist = Math.Abs(g.stars[i].y - g.stars[j].y);
                         double dist = Math.Sqrt(Math.Pow(xDist, 2) + Math.Pow(yDist, 2));
@@ -109,6 +136,7 @@ namespace Galaxies
                         {
                             dist = Math.Sqrt(Math.Pow(xDist, 2) + 1 + Math.Pow(yDist, 2) + 1);
                         }
+
                         double xForce;
                         if (dist == 0)
                         {
@@ -236,6 +264,7 @@ namespace Galaxies
                             {
                                 dist = Math.Sqrt(Math.Pow(xDist, 2) + 1 + Math.Pow(yDist, 2) + 1);
                             }
+
                             double xForce;
                             if (dist == 0)
                             {
@@ -452,6 +481,13 @@ namespace Galaxies
         public int starCount;
         public int[] loc = new int[2];
         public List<Star> stars = new List<Star>();
+
+        public Galaxy(List<Star> stars, int mass, int starCount)
+        {
+            this.stars = stars;
+            this.mass = mass;
+            this.starCount = starCount;
+        }
         public Galaxy(int bodies, int mass, bool hasCore, bool speedToggle, float min, float density)
         {
             int starMass = mass / bodies;
